@@ -128,7 +128,7 @@ class handDetector():
         return distance
     
     def analyze_finger_tip_movement(self, previous_avg_distance, current_points):
-        tolerance = 5
+        tolerance = 2
         current_avg_distance = self.calculate_average_distance(current_points)
         
         #print(current_avg_distance, previous_avg_distance)
@@ -168,8 +168,7 @@ class handDetector():
         #print(finger_tip_state)
 
 
-        # taking action
-        self.trigger.takeAction()
+        
 
         
  
@@ -225,7 +224,20 @@ class Trigger():
                 winsound.PlaySound("*", winsound.SND_ALIAS)
                 time.sleep(self.sleep_interval / 1000.0)
             self.flush()
-        
+
+    def takeAction2(self):
+        time_interval = time.time() - self.last_update_time
+        if self.tips_closer:
+            if self.wrist_up:
+                print("Screen 1 to 2, interval:", time_interval)
+                self.oc.do_swapping(1)
+                winsound.PlaySound("*", winsound.SND_ALIAS)
+            elif self.wrist_down:
+                print("Screen 2 to 1, interval:", time_interval)
+                self.oc.do_swapping(2)
+                winsound.PlaySound("*", winsound.SND_ALIAS)
+        self.flush()
+
 
 
     def printState(self):
@@ -267,11 +279,13 @@ class Trigger():
             self.updateTime()
             self.printState()
 
-            winsound.PlaySound("*", winsound.SND_ALIAS)
+            #winsound.PlaySound("*", winsound.SND_ALIAS)
 
         elif self.previous_tip_state.count("apart") > self.tip_state_trigger_thresh:
             print("##############tipsgetting apart##############")
             self.previous_tip_state = []
+            self.takeAction2()
+
             self.tips_apart = True
             self.updateTime()
             self.printState()
